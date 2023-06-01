@@ -16,29 +16,40 @@ import org.openqa.selenium.NoSuchElementException;
 class MainPage extends PageBase {
 
 
-    private By loginBtn = By.xpath("//a[@id='header-login-button']");
-    private By userInput = By.xpath("//input[@name='username']");
-    private By passwdInput = By.xpath("//input[@name='password']");
-    private By loginSubmitBtn = By.xpath("//button[@data-auth-target='loginSubmitButton']");
-    
-
-
-
+    private By loginBtn = By.id("blp_sbmt");
+    private By userInput = By.name("nev");
+    private By passwdInput = By.name("jelszo");
+ 
     
     public MainPage(WebDriver driver) {
         super(driver);
-        this.driver.get("https://ingatlan.com/");
+        this.driver.get("https://www.hoxa.hu/");
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-        driver.findElement(By.id("CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll")).click();
-        driver.findElement(By.id("interstitial-close-button")).click();
-    }    
-
-    public void login(String email, String passwd){
-        this.waitAndReturnElement(loginBtn).click();
+        clickOnCookieConsentButton();
+    }
+    
+    public LogedInPage login(String email, String passwd){
         this.waitAndReturnElement(userInput).sendKeys(email);
         this.waitAndReturnElement(passwdInput).sendKeys(passwd);
-        this.waitAndReturnElement(loginSubmitBtn).click();
-        
-
+        this.waitAndReturnElement(loginBtn).click();
+      
+        return new LogedInPage(driver);
     }
+
+    public boolean isLogedOut() {
+        return isElementPresent(loginBtn);
+    }
+
+
+    
+    private void clickOnCookieConsentButton() {
+        try {
+            WebElement cookieConsentButton = driver.findElement(By.xpath("//button[contains(text(), 'Elfogadom')]"));            ;
+            cookieConsentButton.click();
+        } catch (NoSuchElementException e) {
+            // Element not found, no action needed
+        }
+    }
+    
+
 }

@@ -33,4 +33,13 @@ class PageBase {
         return bodyElement.getText();
     }
    
+    
+    protected boolean isElementPresent(By locator) {
+        try {
+            driver.findElement(locator);
+            return true;
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+    }
 }
