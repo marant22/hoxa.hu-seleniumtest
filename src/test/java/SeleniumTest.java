@@ -69,6 +69,7 @@ public class SeleniumTest {
         Assert.assertEquals(text.substring(0, 16), returnedText.substring(0, 16)); // compare up to the minute
         profilePage.upload();
         Assert.assertTrue(profilePage.isElementPresent(By.xpath("//span[contains(@class, 'ikon48_6') and contains(@onclick,'/jquery/profilkepnek.php?id=')]")));
+        profilePage.deletePhoto();
     }
     
     

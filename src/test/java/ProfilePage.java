@@ -5,6 +5,11 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.remote.LocalFileDetector;
 import java.util.concurrent.TimeUnit;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -18,6 +23,9 @@ class ProfilePage extends PageBase {
     private By fileUploadBtn = By.xpath("//a[contains(@onclick, 'adatlapkep.php')]");
     private By fileInput = By.xpath("//input[@type='file']");
     private By submitBtn = By.xpath("//button[@id='felhasz_kepek_sbmt']");
+    private By descriptionInput = By.name("leiras");
+    private By fileSelect = By.name("tipus");
+    private By deleteBtn = By.xpath("//span[contains(@onclick,'adatlapkeptorles')]");
 
     public ProfilePage(WebDriver driver) {
         super(driver);
@@ -47,6 +55,10 @@ class ProfilePage extends PageBase {
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", btn);
         btn.click();
 
+        // Locate the textarea and fill it
+        WebElement description = waitAndReturnElement(descriptionInput);
+        description.sendKeys("This is a test comment");
+
         File file = new File("src/test/IMG_20220227_231658.jpg");
         String absolutePath = file.getAbsolutePath();
 
@@ -58,6 +70,10 @@ class ProfilePage extends PageBase {
         WebElement input = waitAndReturnElement(fileInput);
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", input);
         input.sendKeys(absolutePath);
+
+        Select dropdown = new Select(waitAndReturnElement(fileSelect));
+        dropdown.selectByIndex(1);
+
         waitAndReturnElement(submitBtn).click();
 
         // Wait for 10 seconds to observe the result
@@ -66,6 +82,23 @@ class ProfilePage extends PageBase {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+
+    }
+
+    public void deletePhoto() {
+        // Find the delete button by XPath and click it
+        WebElement btn = waitAndReturnElement(deleteBtn);
+        btn.click();
+
+       
+        // Switch to the alert and accept it
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+        alert.accept();
+
+        // Wait until the photo element is removed from the DOM
+        wait.until(ExpectedConditions.stalenessOf(btn));
     }
 
 }
