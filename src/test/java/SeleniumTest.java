@@ -31,24 +31,26 @@ public class SeleniumTest {
 
     }
 
-    // @Test
-    // public void testLogin() {
-    //     // Test login functionality
-    //     MainPage mainPage = new MainPage(this.driver);
-    //     Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
-    //     LogedInPage logedinPage = mainPage.login("teszt98", "passwd");
-    //     Assert.assertTrue(logedinPage.isLogedIn());
-    // }
+    @Test
+    public void testLogin() {
+        // Test login functionality
+        MainPage mainPage = new MainPage(this.driver);
+        Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
+        LogedInPage logedinPage = mainPage.login("teszt98", "passwd");
+        Assert.assertTrue(logedinPage.isLogedIn());
+    }
 
-    // @Test
-    // public void testLogout() {
-    //     // Test logout functionality
-    //     MainPage mainPage = new MainPage(this.driver);
-    //     Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
-    //     LogedInPage logedinPage = mainPage.login("teszt98", "passwd");
-    //     mainPage = logedinPage.logout();
-    //     Assert.assertTrue(mainPage.isLogedOut());
-    // }
+    @Test
+    public void testLogout() {
+        // Test logout functionality
+        MainPage mainPage = new MainPage(this.driver);
+        Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
+        LogedInPage logedinPage = mainPage.login("teszt98", "passwd");
+        mainPage = logedinPage.logout();
+        Assert.assertTrue(mainPage.isLogedOut());
+    }
+
+    
     @Test
     public void testProfileSetting() {
         MainPage mainPage = new MainPage(this.driver);
@@ -74,43 +76,72 @@ public class SeleniumTest {
     
     
 
-    // @Test
-    // public void testSearch() {
-    //     // Test search functionality
-    //     MainPage mainPage = new MainPage(this.driver);
-    //     Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
-    //     SearchResultPage searchResultPage = mainPage.search("Teszt");
-    //     String bodyText = searchResultPage.getBodyText();
-    //     System.out.println(bodyText);
-    //     Assert.assertTrue(bodyText.contains("Teszt"));
-    // }
+    @Test
+    public void testSearch() {
+        // Test search functionality
+        MainPage mainPage = new MainPage(this.driver);
+        Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
+        SearchResultPage searchResultPage = mainPage.search("Teszt");
+        String bodyText = searchResultPage.getBodyText();
+        System.out.println(bodyText);
+        Assert.assertTrue(bodyText.contains("Teszt"));
+    }
 
-    // @Test
-    // public void testStaticPage() {
-    //     // Test static page navigation
-    //     MainPage mainPage = new MainPage(this.driver);
-    //     Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
-    //     WebElement recipeLink = mainPage.waitAndReturnElement(By.xpath("//a[text()='Receptek']"));
-    //     recipeLink.click();
-    //     String h1Text = mainPage.getH1Text();
-    //     System.out.println(h1Text);
-    //     Assert.assertTrue(h1Text.contains("Receptek"));
-    // }
+    @Test
+    public void testStaticPage() {
+        // Test static page navigation
+        MainPage mainPage = new MainPage(this.driver);
+        Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
+        WebElement recipeLink = mainPage.waitAndReturnElement(By.xpath("//a[text()='Receptek']"));
+        recipeLink.click();
+        String h1Text = mainPage.getH1Text();
+        System.out.println(h1Text);
+        Assert.assertTrue(h1Text.contains("Receptek"));
+    }
 
-    // @Test
-    // public void testStaticPages() throws IOException {
-    //     // Test loading multiple static pages from a configuration file
-    //     Properties config = loadConfigFile();
+    @Test
+    public void testBrowserBackButton() {
+        MainPage mainPage = new MainPage(this.driver);
+        Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
+    
+        // Get the current URL for later comparison
+        String urlBeforeNavigation = driver.getCurrentUrl();
+        
+        // Navigate to "Receptek" page
+        WebElement recipeLink = mainPage.waitAndReturnElement(By.xpath("//a[text()='Receptek']"));
+        recipeLink.click();
+    
+        // Create WebDriverWait instance and wait for URL to change
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlToBe(urlBeforeNavigation)));
+    
+        // Use the browser's back button
+        driver.navigate().back();
+    
+        // Wait for the URL to change back to the original URL
+        wait.until(ExpectedConditions.urlToBe(urlBeforeNavigation));
+    
+        // Verify that the current URL is the same as the original URL
+        String urlAfterNavigation = driver.getCurrentUrl();
+        Assert.assertEquals(urlBeforeNavigation, urlAfterNavigation);
+    }
+    
 
-    //     for (String key : config.stringPropertyNames()) {
-    //         String url = config.getProperty(key);
-    //         driver.get(url);
-    //         MainPage mainPage = new MainPage(driver);
-    //         Assert.assertTrue("Footer should contain expected text",
-    //                 mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
-    //         System.out.println("Page loaded successfully: " + url);
-    //     }
-    // }
+
+    @Test
+    public void testStaticPages() throws IOException {
+        // Test loading multiple static pages from a configuration file
+        Properties config = loadConfigFile();
+
+        for (String key : config.stringPropertyNames()) {
+            String url = config.getProperty(key);
+            driver.get(url);
+            MainPage mainPage = new MainPage(driver);
+            Assert.assertTrue("Footer should contain expected text",
+                    mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
+            System.out.println("Page loaded successfully: " + url);
+        }
+    }
 
     private Properties loadConfigFile() throws IOException {
         Properties config = new Properties();
