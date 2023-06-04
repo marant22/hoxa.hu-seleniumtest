@@ -28,38 +28,47 @@ public class SeleniumTest {
         driver = new RemoteWebDriver(new URL("http://selenium:4444/wd/hub"), options);
         driver.manage().window().maximize();
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    }
 
+    /**
+     * This utility function checks if the footer contains the expected text
+     */
+    private void checkFooter() {
+        MainPage mainPage = new MainPage(this.driver);
+        Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
+    }
+
+    /**
+     * This utility function logs in and returns the logged-in page
+     */
+    private LogedInPage login() {
+        MainPage mainPage = new MainPage(this.driver);
+        return mainPage.login("teszt98", "passwd");
     }
 
     @Test
     public void testLogin() {
-        // Test login functionality
-        MainPage mainPage = new MainPage(this.driver);
-        Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
-        LogedInPage logedinPage = mainPage.login("teszt98", "passwd");
+        checkFooter();
+        LogedInPage logedinPage = login();
         Assert.assertTrue(logedinPage.isLogedIn());
     }
 
     @Test
     public void testLogout() {
-        // Test logout functionality
-        MainPage mainPage = new MainPage(this.driver);
-        Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
-        LogedInPage logedinPage = mainPage.login("teszt98", "passwd");
-        mainPage = logedinPage.logout();
-        Assert.assertTrue(mainPage.isLogedOut());
+        checkFooter();
+        LogedInPage logedinPage = login();
+        MainPage mainPage = logedinPage.logout();
+        Assert.assertTrue(mainPage.isLoggedOut());
     }
 
-    
     @Test
     public void testProfileSetting() {
-        MainPage mainPage = new MainPage(this.driver);
-        Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
-        LogedInPage logedinPage = mainPage.login("teszt98", "passwd");
+        checkFooter();
+        LogedInPage logedinPage = login();
         WebElement profileLink = logedinPage.waitAndReturnElement(By.xpath("//a[text()='Profilod']"));
         profileLink.click();
-        WebDriverWait wait = new WebDriverWait(driver, 10); // Create WebDriverWait instance to wait for URL to change
-        wait.until(ExpectedConditions.urlToBe("https://www.hoxa.hu/adatlap-578160")); // Wait until the URL changes to the profile page URL
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        wait.until(ExpectedConditions.urlToBe("https://www.hoxa.hu/adatlap-578160"));
         ProfilePage profilePage = new ProfilePage(driver);
         String h1Text = profilePage.getH1Text();
         System.out.println(h1Text);
@@ -67,20 +76,17 @@ public class SeleniumTest {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         String formattedDate = dateFormat.format(new Date());
         String text = "This is a test message " + formattedDate;
-        String returnedText = profilePage.WriteMotto(text);
-        Assert.assertEquals(text.substring(0, 16), returnedText.substring(0, 16)); // compare up to the minute
-        profilePage.upload();
+        String returnedText = profilePage.writeMotto(text);
+        Assert.assertEquals(text.substring(0, 16), returnedText.substring(0, 16)); 
+        profilePage.uploadPhoto();
         Assert.assertTrue(profilePage.isElementPresent(By.xpath("//span[contains(@class, 'ikon48_6') and contains(@onclick,'/jquery/profilkepnek.php?id=')]")));
         profilePage.deletePhoto();
     }
-    
-    
 
     @Test
     public void testSearch() {
-        // Test search functionality
+        checkFooter();
         MainPage mainPage = new MainPage(this.driver);
-        Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
         SearchResultPage searchResultPage = mainPage.search("Teszt");
         String bodyText = searchResultPage.getBodyText();
         System.out.println(bodyText);
@@ -89,9 +95,8 @@ public class SeleniumTest {
 
     @Test
     public void testStaticPage() {
-        // Test static page navigation
+        checkFooter();
         MainPage mainPage = new MainPage(this.driver);
-        Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
         WebElement recipeLink = mainPage.waitAndReturnElement(By.xpath("//a[text()='Receptek']"));
         recipeLink.click();
         String h1Text = mainPage.getH1Text();
@@ -101,44 +106,27 @@ public class SeleniumTest {
 
     @Test
     public void testBrowserBackButton() {
+        checkFooter();
         MainPage mainPage = new MainPage(this.driver);
-        Assert.assertTrue(mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
-    
-        // Get the current URL for later comparison
         String urlBeforeNavigation = driver.getCurrentUrl();
-        
-        // Navigate to "Receptek" page
         WebElement recipeLink = mainPage.waitAndReturnElement(By.xpath("//a[text()='Receptek']"));
         recipeLink.click();
-    
-        // Create WebDriverWait instance and wait for URL to change
         WebDriverWait wait = new WebDriverWait(driver, 10);
         wait.until(ExpectedConditions.not(ExpectedConditions.urlToBe(urlBeforeNavigation)));
-    
-        // Use the browser's back button
         driver.navigate().back();
-    
-        // Wait for the URL to change back to the original URL
         wait.until(ExpectedConditions.urlToBe(urlBeforeNavigation));
-    
-        // Verify that the current URL is the same as the original URL
         String urlAfterNavigation = driver.getCurrentUrl();
         Assert.assertEquals(urlBeforeNavigation, urlAfterNavigation);
     }
-    
-
 
     @Test
     public void testStaticPages() throws IOException {
-        // Test loading multiple static pages from a configuration file
         Properties config = loadConfigFile();
 
         for (String key : config.stringPropertyNames()) {
             String url = config.getProperty(key);
             driver.get(url);
-            MainPage mainPage = new MainPage(driver);
-            Assert.assertTrue("Footer should contain expected text",
-                    mainPage.getFooterText().contains("2005-2023, www.hoxa.hu"));
+            checkFooter();
             System.out.println("Page loaded successfully: " + url);
         }
     }
