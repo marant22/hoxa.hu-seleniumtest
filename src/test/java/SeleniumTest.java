@@ -77,6 +77,7 @@ public class SeleniumTest {
         String formattedDate = dateFormat.format(new Date());
         String text = "This is a test message " + formattedDate;
         String returnedText = profilePage.writeMotto(text);
+        profilePage = new ProfilePage(driver); // re-initialize ProfilePage after page refresh
         Assert.assertEquals(text.substring(0, 16), returnedText.substring(0, 16)); 
         profilePage.uploadPhoto();
         Assert.assertTrue(profilePage.isElementPresent(By.xpath("//span[contains(@class, 'ikon48_6') and contains(@onclick,'/jquery/profilkepnek.php?id=')]")));
